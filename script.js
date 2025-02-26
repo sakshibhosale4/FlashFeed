@@ -8,9 +8,21 @@ function reload() {
 }
 
 async function fetchNews(query) {
-    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
-    const data = await res.json();
-    bindData(data.articles);
+    try {
+        const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
+        if (!res.ok) {
+            throw new Error(`Failed to fetch news: ${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        if (!data.articles || data.articles.length === 0) {
+            displayNoResults();
+            return;
+        }
+        bindData(data.articles);
+    } catch (error) {
+        console.error("Fetch error:", error);
+        displayErrorMessage("Failed to load news. Please try again later.");
+    }
 }
 
 function bindData(articles) {
@@ -20,7 +32,7 @@ function bindData(articles) {
     cardsContainer.innerHTML = "";
 
     articles.forEach((article) => {
-        if (!article.urlToImage) return;
+        if (!article.urlToImage || !article.title || !article.description) return;
         const cardClone = newsCardTemplate.content.cloneNode(true);
         fillDataInCard(cardClone, article);
         cardsContainer.appendChild(cardClone);
@@ -34,18 +46,28 @@ function fillDataInCard(cardClone, article) {
     const newsDesc = cardClone.querySelector("#news-desc");
 
     newsImg.src = article.urlToImage;
-    newsTitle.innerHTML = article.title;
-    newsDesc.innerHTML = article.description;
+    newsTitle.textContent = article.title;
+    newsDesc.textContent = article.description || "No description available.";
 
     const date = new Date(article.publishedAt).toLocaleString("en-US", {
         timeZone: "Asia/Jakarta",
     });
 
-    newsSource.innerHTML = `${article.source.name} · ${date}`;
+    newsSource.textContent = `${article.source.name} · ${date}`;
 
     cardClone.firstElementChild.addEventListener("click", () => {
         window.open(article.url, "_blank");
     });
+}
+
+function displayNoResults() {
+    const cardsContainer = document.getElementById("cards-container");
+    cardsContainer.innerHTML = "<p>No results found. Please try a different search.</p>";
+}
+
+function displayErrorMessage(message) {
+    const cardsContainer = document.getElementById("cards-container");
+    cardsContainer.innerHTML = `<p style='color:red;'>${message}</p>`;
 }
 
 let curSelectedNav = null;
@@ -61,9 +83,14 @@ const searchButton = document.getElementById("search-button");
 const searchText = document.getElementById("search-text");
 
 searchButton.addEventListener("click", () => {
-    const query = searchText.value;
+    const query = searchText.value.trim();
     if (!query) return;
     fetchNews(query);
     curSelectedNav?.classList.remove("active");
     curSelectedNav = null;
 });
+
+function toggleMenu() {
+    const navLinks = document.getElementById('nav-links');
+    navLinks.style.display = navLinks.style.display === 'none' ? 'block' : 'none';
+}
