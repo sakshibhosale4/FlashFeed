@@ -113,9 +113,11 @@ nav {
 main {
     padding-block: 20px;
     margin-top: 80px;
+    cursor: pointer;
 }
 
 .cards-container {
+    display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     row-gap: 20px;
@@ -123,7 +125,7 @@ main {
 }
 
 .card {
-    width: 360px;
+    width: 30%; /* Default for larger screens */
     min-height: 400px;
     box-shadow: 0 0 4px #d4ecff;
     border-radius: 4px;
@@ -132,6 +134,7 @@ main {
     overflow: hidden;
     transition: all 0.3s ease;
 }
+
 
 .card:hover {
     box-shadow: 1px 1px 8px #d4ecff;
@@ -151,4 +154,28 @@ main {
 
 .news-source {
     margin-block: 12px;
+}
+
+.menu-button{
+    background-color: #577592;
+    color: white;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+}
+
+/*  */
+@media (max-width: 1024px) {
+    .card {
+        width: 45%; /* Two cards per row */
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 100%; /* Full width on smaller screens */
+        min-height: auto; /* Adjust height */
+    }
 }
